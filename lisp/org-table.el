@@ -2253,8 +2253,7 @@ LOCATION is a buffer position, consider the formulas there."
 			((not (match-end 2)) m)
 			;; Is it a column reference?
 			((string-match-p "\\`\\$\\([0-9]+\\|[<>]+\\)\\'" m) m)
-			;; Since named columns are not possible in
-			;; LHS, assume this is a named field.
+			;; This is either a named field or column.
 			(t (match-string 2 string)))))
 		    (rhs (match-string 3 string)))
 		(push (cons lhs rhs) eq-alist)
@@ -2963,7 +2962,9 @@ existing formula for column %s"
 		      (t old-lhs)))))
 	      (if (string-match-p "\\`\\$[0-9]+\\'" lhs)
 		  (push (cons lhs rhs) eqlcol)
-		(push (cons lhs rhs) eqlfield))))
+                (if-let ((named-column (assoc lhs org-table-column-names)))
+                    (push (cons (concat "$" (cdr named-column)) rhs) eqlcol)
+                  (push (cons lhs rhs) eqlfield)))))
 	  (setq eqlcol (nreverse eqlcol))
 	  ;; Expand ranges in lhs of formulas
 	  (setq eqlfield (org-table-expand-lhs-ranges (nreverse eqlfield)))
@@ -3355,7 +3356,7 @@ Parameters get priority."
 	  (sel-win (selected-window))
 	  (titles '((column . "# Column Formulas\n")
 		    (field . "# Field and Range Formulas\n")
-		    (named . "# Named Field Formulas\n"))))
+		    (named . "# Named Field and Named Column Formulas\n"))))
       (org-switch-to-buffer-other-window "*Edit Formulas*")
       (erase-buffer)
       ;; Keep global-font-lock-mode from turning on font-lock-mode

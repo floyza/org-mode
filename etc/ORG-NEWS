@@ -534,6 +534,16 @@ special repeaters ~++~ and ~.+~ are skipped.
 A capture template can target ~(here)~ which is the equivalent of
 invoking a capture template with a zero prefix.
 
+*** Spreadsheets now support named columns on the left-hand side of a formula
+
+Spreadsheet formulas can now use named column references on the
+left-hand side of a formula, instead of being restricted to the
+right-hand side.
+
+This breaks compatibility in tables with a named field and named
+column with the same name, when that name is used on the left-hand
+side of a formula.
+
 ** New functions and changes in function arguments
 *** =TYPES= argument in ~org-element-lineage~ can now be a symbol
 

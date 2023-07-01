@@ -2466,8 +2466,8 @@ current column, evaluated and the current field replaced with the
 result.  If the field contains only ===, the previously stored formula
 for this column is used.  For each column, Org only remembers the most
 recently used formula.  In the =TBLFM= keyword, column formulas look
-like =$4=$1+$2=.  The left-hand side of a column formula can not be
-the name of column, it must be the numeric column reference or =$>=.
+like =$4=$1+$2=.  You can also use named columns, like =$NAME=$1+$2=
+(see [[*Advanced features]]).
 
 Instead of typing an equation into the field, you may also use the
 following command:
@@ -2860,7 +2860,9 @@ The marking characters have the following meaning:
 - =!= ::
 
   The fields in this line define names for the columns, so that you
-  may refer to a column as =$Tot= instead of =$6=.
+  may refer to a column as =$Tot= instead of =$6=. These names have
+  precedence over field names if a column and field share the same
+  name.
 
 - =^= ::
 
