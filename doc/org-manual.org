@@ -2089,7 +2089,8 @@ number of rows.
 #+cindex: @samp{CONSTANTS}, keyword
 #+vindex: org-table-formula-constants
 
-=$name= is interpreted as the name of a column, parameter or constant.
+=$name= is interpreted as the name of a column, field, parameter or
+constant.
 Constants are defined globally through the variable
 ~org-table-formula-constants~, and locally---for the file---through
 a line like this example:
@@ -2104,10 +2105,10 @@ constants in table formulas: for a property =Xyz= use the name
 entry and in the hierarchy above it.  If you have the =constants.el=
 package, it will also be used to resolve constants, including natural
 constants like =$h= for Planck's constant, and units like =$km= for
-kilometers[fn:8].  Column names and parameters can be specified in
-special table lines.  These are described below, see [[*Advanced
-features]].  All names must start with a letter, and further consist
-of letters and numbers.
+kilometers[fn:8].  Column names, field names and parameters can be
+specified in special table lines.  These are described below, see
+[[*Advanced features]].  All names must start with a letter, and further
+consist of letters and numbers.
 
 **** Remote references
 :PROPERTIES:
