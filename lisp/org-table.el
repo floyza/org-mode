@@ -636,6 +636,10 @@ Associations follow the pattern (NAME LINE COLUMN) where
   COLUMN is the column of the field, as an integer.
 This variable is initialized with `org-table-analyze'.")
 
+(defvar org-table-named-field-values nil
+  "Alist with values of named fields.
+This variable is initialized with `org-table-analyze'.")
+
 (defvar org-table-current-line-types nil
   "Table row types in current table.
 This variable is initialized with `org-table-analyze'.")
@@ -3239,8 +3243,10 @@ borders of the table using the @< @> $< $> makers."
 	(setq s (replace-match (format "%s%d" (match-string 1 s) n) t t s)))))
   s)
 
-(defun org-table-formula-substitute-names (f)
-  "Replace $const with values in string F."
+(defun org-table-formula-substitute-names (f &optional lhs)
+  "Replace each $name with their respective column/cell in string F.
+If LHS is non-nil, then replace field references with their respective
+locations instead of their values."
   (let ((start 0)
 	(pp (/= (string-to-char f) ?'))
 	(duration (string-match-p ";.*[Tt].*\\'" f))
@@ -3257,22 +3263,27 @@ borders of the table using the @< @> $< $> makers."
 		  new start))
       (if (match-end 2) (setq start (match-end 2))
 	(cl-incf start)
-	;; When a duration is expected, convert value on the fly.
-	(let ((value
-	       (save-match-data
-		 (let ((v (org-table-get-constant (match-string 1 new))))
-		   (if (and (org-string-nw-p v) duration)
-		       (org-table-time-string-to-seconds v)
-		     v)))))
-	  (when value
-	    (setq new (replace-match
-		       (concat (and pp "(") value (and pp ")")) t t new))))))
+	(let ((result
+	       (if (and lhs (assoc (match-string 1 new) org-table-named-field-locations))
+		   (let ((loc (assoc (match-string 1 new) org-table-named-field-locations)))
+		     (format "@%d$%d"
+			     (org-table-line-to-dline (nth 1 loc))
+			     (nth 2 loc)))
+		 ;; When a duration is expected, convert value on the fly.
+		 (save-match-data
+		   (let ((v (org-table-get-constant (match-string 1 new))))
+		     (if (and (org-string-nw-p v) duration)
+			 (org-table-time-string-to-seconds v)
+		       (concat (and pp "(") v (and pp ")"))))))))
+	  (setq new (replace-match
+		     result t t new)))))
     (if org-table-formula-debug (propertize new :orig-formula f) new)))
 
 (defun org-table-get-constant (const)
   "Find the value for a parameter or constant in a formula.
 Parameters get priority."
-  (or (cdr (assoc const org-table-local-parameters))
+  (or (cdr (assoc const org-table-named-field-values))
+      (cdr (assoc const org-table-local-parameters))
       (cdr (assoc const org-table-formula-constants-local))
       (cdr (assoc const org-table-formula-constants))
       (and (fboundp 'constants-get) (constants-get const))
@@ -4836,7 +4847,8 @@ This function sets up the following dynamically scoped variables:
  `org-table-dlines',
  `org-table-hlines',
  `org-table-local-parameters',
- `org-table-named-field-locations'."
+ `org-table-named-field-locations',
+ `org-table-named-field-values'."
   (let ((beg (org-table-begin))
 	(end (org-table-end)))
     (save-excursion
@@ -4866,6 +4878,7 @@ This function sets up the following dynamically scoped variables:
       ;; Update named fields locations.  We minimize `count-lines'
       ;; processing by storing last known number of lines in LAST.
       (setq org-table-named-field-locations nil)
+      (setq org-table-named-field-values nil)
       (save-excursion
 	(let ((last (cons (point) 0)))
 	  (while (re-search-forward "^[ \t]*| *\\([_^]\\) *\\(|.*\\)" end t)
@@ -4887,7 +4900,7 @@ This function sets up the following dynamically scoped variables:
 				 (stringp v)
 				 (string-match "\\`[a-zA-Z][_a-zA-Z0-9]*\\'"
 					       field))
-			(push (cons field v) org-table-local-parameters)
+			(push (cons field v) org-table-named-field-values)
 			(push (list field line col)
 			      org-table-named-field-locations))))))))))
       ;; Re-use existing markers when possible.
@@ -6287,6 +6300,7 @@ list of the fields in the rectangle."
 	  ;; the context of the remote table.
 	  org-table-column-names org-table-column-name-regexp
 	  org-table-local-parameters org-table-named-field-locations
+	  org-table-named-field-values
 	  org-table-current-line-types
 	  org-table-current-begin-pos org-table-dlines
 	  org-table-current-ncol
