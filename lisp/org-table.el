@@ -2942,21 +2942,16 @@ known that the table will be realigned a little later anyway."
 	    (let* ((rhs (org-table-formula-substitute-names
 			 (org-table-formula-handle-first/last-rc (cdr eq))))
 		   (old-lhs (car eq))
-		   (lhs
-		    (org-table-formula-handle-first/last-rc
-		     (cond
-		      ((string-match "\\`@-?I+" old-lhs)
-		       (user-error "Can't assign to hline relative reference"))
-		      ((string-match "\\`\\$[<>]" old-lhs)
-		       (let ((new (org-table-formula-handle-first/last-rc
-				   old-lhs)))
-			 (when (assoc new eqlist)
-			   (user-error "\"%s=\" formula tries to overwrite \
+		   (lhs (org-table-formula-substitute-names
+			 (org-table-formula-handle-first/last-rc old-lhs)
+			 t)))
+	      (when (string-match "\\`@-?I+" old-lhs)
+		(user-error "Can't assign to hline relative reference"))
+	      (when (and (string-match "\\`\\$[<>]" old-lhs) (assoc lhs eqlist))
+                (user-error "\"%s=\" formula tries to overwrite \
 existing formula for column %s"
-				       old-lhs
-				       new))
-			 new))
-		      (t old-lhs)))))
+                            old-lhs
+                            lhs))
 	      (if (string-match-p "\\`\\$[0-9]+\\'" lhs)
 		  (push (cons lhs rhs) eqlcol)
 		(push (cons lhs rhs) eqlfield))))
