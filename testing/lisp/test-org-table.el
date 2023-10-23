@@ -2159,6 +2159,15 @@ See also `test-org-table/copy-field'."
 |   |    1 |   |
 <point>#+TBLFM: @2$3=$name"
       (org-table-calc-current-TBLFM)
+      (buffer-string))))
+  (should
+   (string-match-p
+    "| +# +| +1 +| +1 +|"
+    (org-test-with-temp-text "
+| ! | lhs | rhs |
+| # |     |   1 |
+<point>#+TBLFM: $lhs=$rhs"
+      (org-table-calc-current-TBLFM)
       (buffer-string)))))
 
 (ert-deftest test-org-table/formula-priority ()

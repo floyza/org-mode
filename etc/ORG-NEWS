@@ -639,6 +639,16 @@ Maxima's graphics packages (~draw~ or ~plot~); the default remains
 ~plot~.  The graphics terminal is now determined from the file-ending
 of the file-name set in the ~:file~ header argument.
 
+*** Spreadsheets now support named columns on the left-hand side of a formula
+
+Spreadsheet formulas can now use named column references on the
+left-hand side of a formula, instead of being restricted to the
+right-hand side.
+
+This breaks compatibility in tables with a named field and named
+column with the same name, when that name is used on the left-hand
+side of a formula.
+
 ** New functions and changes in function arguments
 *** ~org-fold-hide-drawer-all~ is now interactive
 

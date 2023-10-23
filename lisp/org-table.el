@@ -3353,7 +3353,7 @@ Parameters get priority."
 	  (sel-win (selected-window))
 	  (titles '((column . "# Column Formulas\n")
 		    (field . "# Field and Range Formulas\n")
-		    (named . "# Named Field Formulas\n"))))
+		    (named . "# Named Field and Named Column Formulas\n"))))
       (org-switch-to-buffer-other-window "*Edit Formulas*")
       (erase-buffer)
       ;; Keep global-font-lock-mode from turning on font-lock-mode
