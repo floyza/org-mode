@@ -1285,7 +1285,7 @@ value."
 	   (ref1 (org-table-convert-refs-to-an ref))
 	   ;; Prioritize field formulas over column formulas.
 	   (fequation (or (assoc name eql) (assoc ref eql)))
-	   (cequation (or (assoc cname eql) (assoc (format "$%d" col) eql)))
+	   (cequation (assoc (format "$%d" col) eql))
 	   (eqn (or fequation cequation)))
       (let ((p (and eqn (get-text-property 0 :orig-eqn (car eqn)))))
 	(when p (setq eqn p)))
@@ -2123,14 +2123,12 @@ with \"=\" or \":=\"."
     (cond
      (row
       (let* ((col (org-table-current-column))
-	     (cname (car (rassoc (number-to-string col) org-table-column-names)))
 	     (name (car (rassoc (list line col)
 				org-table-named-field-locations)))
 	     (scol (format "$%d" col))
 	     (ref (format "@%d$%d" (org-table-current-dline) col))
 	     (stored-list (org-table-get-stored-formulas noerror))
-	     (ass (or (assoc cname stored-list)
-		      (assoc name stored-list)
+	     (ass (or (assoc name stored-list)
 		      (assoc ref stored-list)
 		      (assoc scol stored-list))))
 	(cond (key (car ass))
@@ -3177,8 +3175,7 @@ function assumes the table is already analyzed (i.e., using
 	  ;; This just refers to one fixed field.
 	  (push e res))
 	 ((string-match-p "\\`[a-zA-Z][_a-zA-Z0-9]*\\'" lhs)
-	  ;; This just refers to one fixed named field, or a column
-	  ;; formula with a named column.
+	  ;; This just refers to one fixed named field.
 	  (push e res))
 	 ((string-match-p "\\`\\$[0-9]+\\'" lhs)
 	  ;; Column formulas are treated specially and are not
